@@ -1,0 +1,166 @@
+<html>
+    <head>
+        <title>ISO-20765 Gas Properties</title>
+        <script src="google.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="style.css" media="screen">
+    </head>
+
+<body bgcolor="FFFFFF">
+<h1>ISO-20765</h1>
+Input:<br>
+
+<div class="Table">
+
+<div class="TableRow">
+<div class="TableCell">P</div>
+<div class="TableCell">Pressure</div>
+<div class="TableCell"><input type="number" value="10" onChange="this.setAttribute('value', this.value);"></div>
+<div class="TableCell">
+	<select name="Unit" id="test" onChange="for (i=0; i < this.children.length; i++) {if (i == this.selectedIndex) {this.children[i].setAttribute('selected', 'selected');} else {this.children[i].removeAttribute('selected');};};">
+		<option value="Barg">Barg</option>
+		<option value="Bara">Bara</option>
+		<option value="PSI">PSI</option>
+		<option value="Pa">Pa</option>
+	</select>
+</div>
+</div>
+
+<div class="TableRow">
+<div class="TableCell">T</div>
+<div class="TableCell">Temperature</div>
+<div class="TableCell"><input type="number"></div>
+<div class="TableCell">
+	<select name="Unit">
+		<option value="K">K</option>
+		<option value="degC">degC</option>
+		<option value="R">R</option>
+		<option value="F">F</option>
+	</select>
+</div>
+</div>
+
+<div class="TableRow">
+<div class="TableCell">x</div>
+<div class="TableCell">Gas composition</div>
+<div class="TableCell">
+	<select name="Unit">
+		<option value="Slochteren">Slochteren</option>
+		<option value="Hi-cal">Hi-cal</option>
+		<option value="Nitrogen">Nitrogen</option>
+	</select>
+</div>
+</div>
+
+<div class="TableRow">
+<div class="TableCell">d</div>
+<div class="TableCell">Diameter</div>
+<div class="TableCell">
+	<select name="inputType">
+		<option value="Input">Input</option>
+		<option value="Variable">Variable</option>
+		<option value="Range">Range</option>
+		<option value="Function">Function</option>
+	</select>
+</div>
+
+<div class="Table">
+<div class="TableRow">
+<div class="TableCell"><input type="number"></div>
+<div class="TableCell">
+	<select name="Unit">
+		<option value="K">K</option>
+		<option value="degC">degC</option>
+		<option value="R">R</option>
+		<option value="F">F</option>
+	</select>
+</div>
+</div>
+</div>
+</div>
+
+
+</div>
+
+</div>
+
+Output:
+<div id="Output"></div>
+
+Add:
+<div id="Add">
+<button type="button" onclick="add('test');">Add</button>
+<a onclick="this.download = document.title; this.href='data:text/html;charset=UTF-8,'+encodeURIComponent(document.documentElement.outerHTML)" href="#"><button type="button">Download</button></a>
+</div>
+
+<br>
+<svg width="64" height="64" shape-rendering="geometricPrecision">
+	<line fill="none" stroke="black" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" x1="32" y1="50" x2="32" y2="14"/>
+	<line fill="none" stroke="black" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" x1="14" y1="32" x2="50" y2="32"/>
+	<circle fill="none" stroke="black" stroke-width="3" stroke-miterlimit="10" cx="32" cy="32" r="29"/>
+</svg>
+</body>
+
+<script type="text/javascript">
+counter = 1;
+
+function add(name){
+	NewElement = document.createElement('div');
+	NewElement.id = name+counter;
+
+	for (key in functions) {
+		if (functions.hasOwnProperty(key)) {
+			NewElement.innerHTML += `<button type='button' onclick='` + functions[key].name + `.add("` + name + counter + `");'>` + functions[key].name + `</button><br>`;
+		}
+	}
+	counter += 1;
+
+	document.getElementById('Add').parentNode.insertBefore(NewElement, document.getElementById('Add'));
+};
+
+D2A = {
+	name: "D2A",
+	input: {
+		symbol: "d",
+		description: "Diameter",
+		unit: "m"
+		},
+	output: {
+		symbol: "A",
+		description: "Area",
+		unit: "m2"
+		},
+	code() {
+		return 0.25*Math.PI*this.input^2;
+		document.getElementById("Output").innerHTML = this + " blkaslbfgadg";
+		},
+	add(div) {
+		document.getElementById(div).innerHTML = this.name + " div" + "<br>" + this.input + "<br>" + this.output;
+		}
+	};
+	
+A2D = {
+	name: "A2D",
+	input: {
+		symbol: "A",
+		description: "Area",
+		unit: "m2"
+		},
+	output: {
+		symbol: "d",
+		description: "Diameter",
+		unit: "m"
+		},
+	code() {
+		return 0.25*Math.PI*this.input^2;
+		document.getElementById("Output").innerHTML = this + " blkaslbfgadg";
+		},
+	add(div) {
+		document.getElementById(div).innerHTML = this.name + " div" + "<br>" + this.input + "<br>" + this.output;
+		}
+	};
+	
+functions = [D2A, A2D];
+</script>
+
+</html>
