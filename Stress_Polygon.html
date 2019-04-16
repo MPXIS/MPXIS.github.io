@@ -1,0 +1,265 @@
+<html>
+	<head>
+		<title>Stress Polygon</title>
+			<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-101738149-1"></script>
+        	<script src="google.js"></script>
+	</head>
+	<body>
+<style>
+body {
+	font-family: "Segoe UI";
+}
+path {
+    fill: none;
+    stroke-width: 2.5;
+}
+ 
+line {
+    stroke: #CCCCCC;
+}
+ 
+text {
+    font-family: "Segoe UI";
+    font-size: 12pt;
+}
+.axis line {
+    fill: none;
+    stroke: lightgray;
+    shape-rendering: crispEdges;
+    stroke-width: 0.5
+	stroke-opacity:0.25;
+}
+#Menu {
+    position:fixed;
+    top:0%;
+    left:0%;
+	bottom:0%;
+    background-color:#EEE;
+    color:#000;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+#Output {
+    display: inline-block;
+    float:right;
+}
+
+</style>
+
+<div id="Menu">
+<table id="MainTable">
+<tr><td VALIGN="top">
+<b>Input data</b><br>
+<br>
+<table margin-right="100">
+<tr><td>Pore Pressure</td><td><input type="text" size="10" id="PP" value="28" onkeyup="update()" onchange="update();"></input> MPa</td></tr>
+<tr><td>Vertical Stress</td><td><input type="text" size="10" id="SV" value="34" onkeyup="update()" onchange="update();"></input> MPa</td></tr>
+</table>
+</td>
+</tr>
+<a href="https://mpxis.github.io/">Return home</a>
+</table>
+</div>
+
+<div id="Output"></div>
+<script type="text/javascript">
+visible = false;
+
+function urlParam(name, w){
+    w = w || window;
+    var rx = new RegExp('[\&|\?]'+name+'=([^\&\#]+)'),
+        val = w.location.search.match(rx);
+    return !val ? '':val[1];
+}
+
+function plot(PP, SV) {
+
+RF = [{"SHmax": SV, "Shmin": SV},{"SHmax": (3.1*(SV-PP))+PP, "Shmin": SV},{"SHmax": (3.1*(SV-PP))+PP, "Shmin": (3.1*(SV-PP))+PP},{"SHmax": SV, "Shmin": SV}];
+SS = [{"SHmax": SV, "Shmin": SV},{"SHmax": SV, "Shmin": ((SV-PP)/3.1)+PP},{"SHmax": (3.1*(SV-PP))+PP, "Shmin": SV},{"SHmax": SV, "Shmin": SV}];
+NF = [{"SHmax": SV, "Shmin": SV},{"SHmax": ((SV-PP)/3.1)+PP, "Shmin": ((SV-PP)/3.1)+PP},{"SHmax": SV, "Shmin": ((SV-PP)/3.1)+PP},{"SHmax": SV, "Shmin": SV}];
+
+w = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
+
+h = window.innerHeight
+|| document.documentElement.clientHeight
+|| document.body.clientHeight;
+
+w = w - document.getElementById('MainTable').rows[0].cells[0].offsetWidth - 34;
+h = h - 24;
+//w = 1570/1.2;
+//h = 1099/1.2;
+margin = 50;
+
+xdata = [];
+ydata = [];
+
+y = d3.scale.linear().domain([0, ((3.1*(SV-PP))+PP)*1.1]).range([h - margin, 10]),
+x = d3.scale.linear().domain([0, ((3.1*(SV-PP))+PP)*1.1]).range([margin, w - (10)]);
+
+zoom = d3.behavior.zoom()
+    .scaleExtent([1, 10])
+	.x(x)
+	.y(y)
+    .on("zoom", zoomed);
+
+document.getElementById("Output").innerHTML = "";
+
+vis = d3.select("#Output")
+    .append("svg:svg")
+    .attr("width", w)
+    .attr("height", h)
+	.attr("overflow","hidden")
+    .call(zoom);
+ 
+g = vis.append("svg:g");
+
+xAxis = d3.svg.axis().scale(x).tickSize(h-(margin+10)).ticks(20).innerTickSize(h-margin-5),
+    xAxis2 = d3.svg.axis().scale(x).tickSize(h-(margin+10)).ticks(100).tickFormat(""),
+    yAxis = d3.svg.axis().scale(y).tickSize(-w+(margin+10)).ticks(10).orient("left").innerTickSize(5),
+    yAxis2 = d3.svg.axis().scale(y).tickSize(-w+(margin+10)).ticks(50).orient("left").tickFormat("");
+
+lijn = d3.svg.line()
+		.x(function(d) { return x(d.Shmin); })
+		.y(function(d) { return y(d.SHmax); });
+	
+g.append("path").attr("d", lijn(NF))
+    .attr("fill", "green")
+    .attr("stroke", "green")
+    .attr("stroke-width", 1)
+    .attr('style', "fill:green;opacity:0.25");
+
+g.append("path").attr("d", lijn(SS))
+    .attr("fill", "red")
+    .attr("stroke", "red")
+    .attr("stroke-width", 1)
+    .attr('style', "fill:red;opacity:0.25");
+	
+g.append("path").attr("d", lijn(RF))
+    .attr("fill", "blue")
+    .attr("stroke", "blue")
+    .attr("stroke-width", 1)
+    .attr('style', "fill:blue;opacity:0.25");
+
+rand = vis.append("svg:g");
+
+rand.append("rect")
+	.attr("x", 0)
+	.attr("y", 0)
+	.attr("width", margin)
+	.attr("height", h)
+	.style("fill", "white");
+
+rand.append("rect")
+	.attr("x", 0)
+	.attr("y", h-margin)
+	.attr("width", w)
+	.attr("height", margin)
+	.style("fill", "white");
+
+rand.append("rect")
+	.attr("x", 0)
+	.attr("y", 0)
+	.attr("width", w)
+	.attr("height", 10)
+	.style("fill", "white");
+
+rand.append("rect")
+	.attr("x", w-10)
+	.attr("y", 0)
+	.attr("width", 10)
+	.attr("height", h)
+	.style("fill", "white");
+
+assen = vis.append("svg:g");
+
+assen.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0, 10)")
+    .call(xAxis);
+
+assen.append("g")
+    .attr("class", "x axis2")
+    .attr("transform", "translate(0, 10)")
+    .call(xAxis2);
+
+assen.append("g")
+    .attr("class", "y axis")
+    .attr("transform", "translate("+margin+", 0)")
+    .call(yAxis);
+
+assen.append("g")
+    .attr("class", "y axis2")
+    .attr("transform", "translate("+margin+", 0)")
+    .call(yAxis2);
+
+assen.append("text")      // text label for the x axis
+    .attr("class", "x label")
+    .attr("x", w / 2)
+    .attr("y", h-11 )
+    .style("text-anchor", "middle")
+    .text("S_h,min [MPa]");
+
+assen.append("text")
+    .attr("class", "y label")
+    .attr("text-anchor", "middle")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -h/2 )
+    .attr("y", 14)
+    .text("S_H,max [MPa]");
+	
+legenda = vis.append("svg:g");
+	
+legenda.selectAll("rect")
+	.data(graph)
+	.enter().append("rect")
+	.attr("x", 80-4)
+	.attr("y", function(d, n) { return n*20+40-4 })
+	.attr("width", 240)
+	.attr("height", 20)
+	.style("fill", "white");
+
+legenda.selectAll("rect2")
+	.data(graph)
+	.enter().append("rect")
+	.attr("x", 80)
+	.attr("y", function(d, n) { return n*20+40  })
+	.attr("width", 12)
+	.attr("height", 12)
+	.style("fill", function(d) { return colors(d) });
+
+legenda.selectAll("textLegend")
+	.data(graph)
+	.enter().append("text")
+	.attr("x", 100)
+	.attr("y", function(d, n) { return n*20+40+12 })
+	.style("fill", "black")
+	.text(function(d) { return d.Title; });	
+}
+
+function zoomed() {
+  zoom.translate([Math.max(Math.min(zoom.translate()[0], (zoom.scale()-1)*-margin),(zoom.scale()-1)*-(w-10)), Math.max(Math.min(zoom.translate()[1], (zoom.scale()-1)*-10),(zoom.scale()-1)*-(h-margin))]);
+  g.attr("transform", "translate(" + zoom.translate() + ")scale(" + d3.event.scale + ")");
+  vis.select(".x.axis").call(xAxis);
+  vis.select(".x.axis2").call(xAxis2);
+  vis.select(".y.axis").call(yAxis);
+  vis.select(".y.axis2").call(yAxis2);
+}
+
+function update() {
+	PP = Number(document.getElementById("PP").value);
+	SV = Number(document.getElementById("SV").value);
+	plot(PP, SV);
+}
+
+PP = urlParam("PP");
+if (PP != ""){document.getElementById("PP").value = Number(PP);}
+SV = urlParam("SV");
+if (SV != ""){document.getElementById("SV").value = Number(SV);}
+update();	
+</script>
+
+	</body>
+</html>
