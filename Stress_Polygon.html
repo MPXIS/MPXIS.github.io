@@ -125,23 +125,28 @@ lijn = d3.svg.line()
 		.x(function(d) { return x(d.Shmin); })
 		.y(function(d) { return y(d.SHmax); });
 	
-g.append("path").attr("d", lijn(NF))
-    .attr("fill", "green")
-    .attr("stroke", "green")
-    .attr("stroke-width", 1)
-    .attr('style', "fill:green;opacity:0.25");
-
 g.append("path").attr("d", lijn(SS))
     .attr("fill", "red")
     .attr("stroke", "red")
     .attr("stroke-width", 1)
-    .attr('style', "fill:red;opacity:0.25");
+    .attr('style', "fill:red;fill-opacity:0.25");
+
+g.append("path").attr("d", lijn(NF))
+    .attr("fill", "green")
+    .attr("stroke", "green")
+    .attr("stroke-width", 1)
+    .attr('style', "fill:green;fill-opacity:0.25");
 	
 g.append("path").attr("d", lijn(RF))
     .attr("fill", "blue")
     .attr("stroke", "blue")
     .attr("stroke-width", 1)
-    .attr('style', "fill:blue;opacity:0.25");
+    .attr('style', "fill:blue;fill-opacity:0.25");
+
+g.append("path").attr("d", lijn([{"SHmax": ((3.1*(SV-PP))+PP)*1.1, "Shmin": ((3.1*(SV-PP))+PP)*1.1},{"SHmax": 0, "Shmin": 0}]))
+    .attr("stroke", "black")
+    .attr("stroke-width", 1);
+
 
 rand = vis.append("svg:g");
 
