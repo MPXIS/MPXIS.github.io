@@ -55,6 +55,8 @@ text {
 <table margin-right="100">
 <tr><td>Pore Pressure</td><td><input type="text" size="10" id="PP" value="19" onkeyup="update()" onchange="update();"></input> MPa</td></tr>
 <tr><td>Vertical Stress</td><td><input type="text" size="10" id="SV" value="41" onkeyup="update()" onchange="update();"></input> MPa</td></tr>
+<tr><td>Friction Coefficient (&#956;)</td><td><input type="text" size="10" id="u" value="0.6" onkeyup="update()" onchange="update();"></input></td></tr>
+<tr><td>Friction Equilibrium</td><td><input type="text" size="10" id="u2" value="" disabled="true" onkeyup="update()" onchange="update();"></input></td></tr>
 </table>
 </td>
 </tr>
@@ -73,11 +75,14 @@ function urlParam(name, w){
     return !val ? '':val[1];
 }
 
-function plot(PP, SV) {
+function plot(PP, SV, u) {
 
-RF = [{"SHmax": SV, "Shmin": SV},{"SHmax": (3.1*(SV-PP))+PP, "Shmin": SV},{"SHmax": (3.1*(SV-PP))+PP, "Shmin": (3.1*(SV-PP))+PP},{"SHmax": SV, "Shmin": SV}];
-SS = [{"SHmax": SV, "Shmin": SV},{"SHmax": SV, "Shmin": ((SV-PP)/3.1)+PP},{"SHmax": (3.1*(SV-PP))+PP, "Shmin": SV},{"SHmax": SV, "Shmin": SV}];
-NF = [{"SHmax": SV, "Shmin": SV},{"SHmax": ((SV-PP)/3.1)+PP, "Shmin": ((SV-PP)/3.1)+PP},{"SHmax": SV, "Shmin": ((SV-PP)/3.1)+PP},{"SHmax": SV, "Shmin": SV}];
+document.getElementById("u2").value = Math.pow((Math.sqrt((u*u)+1)+u), 2);
+u = Math.pow((Math.sqrt((u*u)+1)+u), 2);
+
+RF = [{"SHmax": SV, "Shmin": SV},{"SHmax": (u*(SV-PP))+PP, "Shmin": SV},{"SHmax": (u*(SV-PP))+PP, "Shmin": (u*(SV-PP))+PP},{"SHmax": SV, "Shmin": SV}];
+SS = [{"SHmax": SV, "Shmin": SV},{"SHmax": SV, "Shmin": ((SV-PP)/u)+PP},{"SHmax": (u*(SV-PP))+PP, "Shmin": SV},{"SHmax": SV, "Shmin": SV}];
+NF = [{"SHmax": SV, "Shmin": SV},{"SHmax": ((SV-PP)/u)+PP, "Shmin": ((SV-PP)/u)+PP},{"SHmax": SV, "Shmin": ((SV-PP)/u)+PP},{"SHmax": SV, "Shmin": SV}];
 
 w = window.innerWidth
 || document.documentElement.clientWidth
@@ -96,8 +101,8 @@ margin = 50;
 xdata = [];
 ydata = [];
 
-y = d3.scale.linear().domain([0, ((3.1*(SV-PP))+PP)*1.1]).range([h - margin, 10]),
-x = d3.scale.linear().domain([0, ((3.1*(SV-PP))+PP)*1.1]).range([margin, w - (10)]);
+y = d3.scale.linear().domain([0, ((u*(SV-PP))+PP)*1.1]).range([h - margin, 10]),
+x = d3.scale.linear().domain([0, ((u*(SV-PP))+PP)*1.1]).range([margin, w - (10)]);
 
 zoom = d3.behavior.zoom()
     .scaleExtent([1, 10])
@@ -256,7 +261,8 @@ function zoomed() {
 function update() {
 	PP = Number(document.getElementById("PP").value);
 	SV = Number(document.getElementById("SV").value);
-	plot(PP, SV);
+	u = Number(document.getElementById("u").value);
+	plot(PP, SV, u);
 }
 
 PP = urlParam("PP");
